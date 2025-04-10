@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Validasi Input</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f2f5;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 28px;
+        }
+        .form-row {
+            margin-bottom: 10px;
+        }
+        label {
+            display: inline-block;
+            width: 100px;
+            text-align: right;
+            margin-right: 10px;
+        }
+        input[type="text"], 
+        input[type="password"], 
+        input[type="email"] {
+            width: 250px;
+            padding: 5px;
+        }
+        input[type="button"] {
+            margin-left: 110px;
+            padding: 5px 15px;
+            cursor: pointer;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        .success {
+            color: green;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Validasi Input</h1>
+        
+        <p>Masukkan nama, password dan alamat email anda :</p>
+        
+        <div class="form-row">
+            <label for="nama">Nama :</label>
+            <input type="text" id="nama">
+        </div>
+        
+        <div class="form-row">
+            <label for="password">Password:</label>
+            <input type="password" id="password">
+        </div>
+        
+        <div class="form-row">
+            <label for="email">E-mail:</label>
+            <input type="email" id="email">
+        </div>
+        
+        <div class="form-row">
+            <input type="button" value="Klik" id="validateButton">
+        </div>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function validateForm() {
+            var password = document.getElementById("password").value;
+            var resultDiv = document.getElementById("result");
+            
+            if (password !== "sss") {
+                resultDiv.innerHTML = '<p class="error">password salah</p>';
+                return false;
+            } else {
+                resultDiv.innerHTML = '<p class="success">Login berhasil</p>';
+                return true;
+            }
+        }
+        
+        // Add event listeners
+        document.getElementById("validateButton").addEventListener("click", validateForm);
+        
+        // Add Enter key support for all inputs
+        const inputs = document.querySelectorAll("input[type='text'], input[type='password'], input[type='email']");
+        inputs.forEach(input => {
+            input.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    validateForm();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Peta Fakultas UGM</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
+    .title-container {
+      position: absolute;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px 50px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: sans-serif;
+    }
+
+    .popup-img {
+      width: 100px;
+      height: auto;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="title-container">
+    <h1>Peta Fakultas di Universitas Gadjah Mada</h1>
+  </div>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Inisialisasi peta
+    var map = L.map('map').setView([-7.767, 110.377], 16);
+
+    // Layer peta
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Data fakultas
+    var fakultas = [
+      { nama: "Fakultas Teknik", lat: -7.765061951819842, lon: 110.37252779329371, province: "DI YOGYAKARTA", district: "KAB. SLEMAN", Keterangan : "Fakultas Teknik Universitas Gadjah Mada (UGM) memiliki delapan departemen, di antaranya: Departemen Teknik Elektro dan Teknologi Informasi (DTETI),Departemen Arsitektur dan Perencanaan,Departemen Geodesi,Departemen Geologi,Departemen Kimia,Departemen Mesin dan Industri,Departemen Nuklir dan Fisika,Departemen Sipil dan Lingkungan", img : "Leaf/FT.jpg" },
+      { nama: "Fakultas Kedokteran, Kesehatan Masyarakat", lat: -7.769194132314757, lon: 110.37407559327241, province: "DI YOGYAKARTA", district: "KAB. SLEMAN", Keterangan : "Fakultas Kedokteran, Kesehatan Masyarakat, dan Keperawatan (FK-KMK) UGM mengedepankan karakter organisasi pembelajar (learning organization) untuk dapat beradaptasi dengan lingkungan yang dinamis sehingga tetap relevan, resilien dan terdepan", img : "Leaf/FK.jpg" },
+      { nama: "Fakultas Biologi", lat:-7.765265967801206, lon: 110.37665750829906, province: "DI YOGYAKARTA", district: "KAB. SLEMAN", Keterangan : "Fakultas Biologi Universitas Gadjah Mada (UGM) memiliki satu program studi S1, yaitu Program Studi Biologi. Program studi ini memiliki tiga minat studi, yaitu: Biologi Fungsional dan Perkembangan, Biologi Lingkungan dan Biodiversitas, Biologi Molekuler dan Bioteknolog", img : "Leaf/FB.jpg" },
+      { nama: "Fakultas Hukum", lat: -7.770349536160078 , lon: 110.38112379144073, province: "DI YOGYAKARTA", district: "KAB. SLEMAN", Keterangan : "Fakultas Hukum Universitas Gadjah Mada (UGM) memiliki berbagai jurusan, di antaranya: Hukum Adat, Hukum Administrasi Negara, Hukum Agraria, Hukum Bisnis, Hukum Internasional, Hukum Islam, Hukum Lingkungan, Hukum Pajak, Hukum Perdata, Hukum Pidana", img : "Leaf/FH.jpg" },
+      { nama: "Fakultas Peternakan", lat:-7.767717235355899, lon: 110.38529012026525, province: "DI YOGYAKARTA", district: "KAB. SLEMAN", Keterangan : "Fakultas Peternakan UGM menawarkan satu program studi jenjang sarjana yaitu Program Studi Ilmu dan Industri Peternakan. Pembelajaran yang berkelanjutan berbasis pada hasil-hasil penelitian yang mutakhir akan terus ditingkatkan.", img : "Leaf/FAPER.jpg" }
+    ];
+
+    // Tambahkan marker ke peta
+    fakultas.forEach(function(fak) {
+      var popupContent = `
+        <b>${fak.nama}</b><br>
+        <b>Provinsi</b>:  ${fak.province}<br>
+        <b>Kabupaten</b>: ${fak.district}<br>
+        <b>Keterangan</b>: ${fak.Keterangan}<br>
+        <img src="${fak.img}" class="popup-img" alt="${fak.nama}">
+      `;
+      L.marker([fak.lat, fak.lon]).addTo(map)
+        .bindPopup(popupContent);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Peta Stasiun Kereta Api Yogyakarta-Madiun</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Add Easy Button for menu -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.EasyButton/2.4.0/easy-button.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.EasyButton/2.4.0/easy-button.js"></script>
+    <!-- Leaflet Search Plugin -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-search/3.0.9/leaflet-search.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-search/3.0.9/leaflet-search.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="1.css">
+    <script src="atribut.js"></script>
+
+</head>
+<body>
+    <div class="title-container">
+        <h1>Peta Rute Stasiun Yogyakarta-Madiun</h1>
+    </div>
+    <div id="map"></div>
+    
+    <!-- Container untuk tombol-tombol kontrol dinamis -->
+    <div id="control-buttons" class="control-buttons">
+        <!-- Tombol awal akan ditambahkan melalui JavaScript -->
+    </div>
+    
+    <!-- Menu Container with integrated legend positioned at left -->
+    <div id="menu-container" class="menu-container">
+        <span class="close-menu" onclick="toggleMenu()">&times;</span>
+        <h3>Menu</h3>
+        <!-- Integrated search in menu with magnifying glass icon -->
+        <div class="menu-search">
+            <input type="text" id="menu-search-input" placeholder="Cari Stasiun..." />
+            <button onclick="searchStation()"><i class="fas fa-search search-icon"></i></button>
+        </div>
+        <div class="menu-option" onclick="showAbout()">
+            <i class="fas fa-info-circle"></i> Tentang Peta
+        </div>
+        <div class="menu-option" onclick="showTrainSchedule()">
+            <i class="fas fa-train"></i> Jadwal Kereta
+        </div>
+        <div class="menu-option" onclick="toggleAnimation()">
+            <i class="fas fa-play-circle"></i> <span id="animation-text">Mulai Animasi</span>
+        </div>
+        <div class="menu-option" onclick="showHelp()">
+            <i class="fas fa-question-circle"></i> Bantuan
+        </div>
+        
+        <!-- Integrated legend -->
+        <div class="menu-legend">
+            <h4>Legenda</h4>
+            <div><img src="images/icon.png" width="25" height="25" style="margin-right: 8px; vertical-align: middle;"> Stasiun</div>
+            <div><i class="line-icon" style="background: red;"></i> Jalur Kereta</div>
+            <div style="margin-top: 10px;">
+                <b>Informasi Jalur:</b><br>
+                Rute Yogyakarta-Madiun<br>
+                Panjang: 180 km<br>
+                <span id="station-count"></span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Inisialisasi peta yang berpusat di Jawa Tengah
+        var map = L.map('map', {
+            center: [-7.58,110.8],
+            zoom: 40
+        });
+        
+        // Tambahkan beberapa layer peta dasar
+        var openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        var satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+        
+        var terrain = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        });
+
+        L.geoJSON(daerah,{
+                    style: function(feature) {
+                    switch (feature.properties.PROVINSI) {
+                    case 'DI YOGYAKARTA': return {color: "magenta"};
+                    case 'JAWA TENGAH': return {color: "blue"};
+                    case 'JAWA TIMUR': return {color: "purple"};
+                    }
+                    },
+                    onEachFeature: function (feature, layer) {
+                        layer.bindPopup(
+                        'Darah ini adalah ' +
+                        '<strong>' +
+                        feature.properties.KAB_KOTA +
+                        '</strong>'+ ' yang berada di Provinsi ' + '<strong>' + feature.properties.PROVINSI + '</strong>'
+                        );
+                    }
+                    }).addTo(map);
+        
+        // Gunakan ikon yang sama untuk semua stasiun
+        var stationIcon = L.icon({
+            iconUrl: 'images/icon.png', 
+            iconSize: [35, 35], 
+            iconAnchor: [25, 25], 
+            popupAnchor: [10, 10] 
+        });
+        
+
+        // Update station count in legend
+        document.getElementById('station-count').innerText = "Jumlah Stasiun: " + stations.length;
+
+        // Buat cluster group untuk stasiun
+        var markers = L.markerClusterGroup({
+            disableClusteringAtZoom: 10,
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: true,
+            zoomToBoundsOnClick: true
+        });
+        
+        // Array untuk menyimpan semua marker untuk fitur pencarian
+        var searchableLayers = [];
+
+        // Tambahkan marker untuk setiap stasiun dengan popup yang lebih informatif
+        stations.forEach(function(station) {
+            var popupContent = `
+                <div class="custom-popup">
+                    <h3>${station.name} (${station.code})</h3>
+                    <img src="${station.img}" alt="${station.name}" />
+                    <div class="info-row">
+                        <span class="info-label">Kabupaten:</span> ${station.district}
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Provinsi:</span> ${station.province}
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Kelas:</span> ${station.kelas || 'Tidak Ditentukan'}
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Operator:</span> ${station.operator}
+                    </div>
+                    <div class="info-row" style="margin-top: 10px;">
+                        <a href="#" onclick="showStationDetails('${station.code}'); return false;"><i class="fas fa-info-circle"></i> Detail Stasiun</a> | 
+                        <a href="#" onclick="showSchedule('${station.code}'); return false;"><i class="fas fa-calendar-alt"></i> Lihat Jadwal</a> |
+                        <a href="#" onclick="showNearbyFacilities('${station.code}'); return false;"><i class="fas fa-building"></i> Fasilitas</a>
+                    </div>
+                </div>
+            `;
+            
+            var marker = L.marker([station.lat, station.lon], {
+                icon: stationIcon,
+                title: station.name,
+                stationCode: station.code,
+                stationData: station
+            }).bindPopup(popupContent);
+            
+            // Add event listener to marker's popup to close menu and basemap info when clicked
+            marker.on('click', function() {
+                closeMenu();
+            });
+            
+            markers.addLayer(marker);
+            
+            // Tambahkan marker ke array searchable
+            searchableLayers.push({
+                loc: [station.lat, station.lon],
+                title: station.name + " (" + station.code + ")",
+                layer: marker,
+                icon: stationIcon
+            });
+        });
+        
+        map.addLayer(markers);
+         
+        // Persiapkan array koordinat yang kompatibel dengan Leaflet
+        var railwayLatLngs = rute.map(function(coord) {
+            return [coord[1], coord[0]]; // Balik urutan karena Leaflet menggunakan [lat, lng]
+        });
+        
+        // Buat polyline untuk rute kereta api jalur utama
+        var railwayLine = L.polyline(railwayLatLngs, {
+            color: 'red',
+            weight: 5,
+            opacity: 0.8,
+            smoothFactor: 1
+        }).addTo(map);
+        
+        // Tambahkan efek bayangan/glow untuk rute utama
+        var railwayGlow = L.polyline(railwayLatLngs, {
+            color: '#ff6666',
+            weight: 12,
+            opacity: 0.3,
+            smoothFactor: 1
+        }).addTo(map);
+        
+        // Letakkan glow di belakang jalur utama
+        railwayGlow.bringToBack();
+        
+        railwayLine.bindPopup("<b>Jalur Kereta Api</b><br>Rute Madiun-Yogyakarta");
+        
+        
+        // Membuat ikon kereta dengan SVG
+        var trainIcon = L.divIcon({
+            className: 'train-icon',
+            html: trainSvgString,
+            iconSize: [30, 30],
+            iconAnchor: [35, 35]
+        });
+
+        // Menambahkan marker kereta pada posisi awal
+        var trainMarker = L.marker(railwayLatLngs[0], {
+            icon: trainIcon
+        }).addTo(map);
+        
+        trainMarker.bindPopup("Status: Dalam perjalanan");
+
+        // Fungsi untuk menggerakkan kereta sepanjang jalur
+        var currentIdx = 0;
+        
+        // Variabel untuk mengontrol animasi kereta
+       // Variabel untuk mengontrol animasi kereta
+var animationRunning = true;
+var animationInterval;
+
+// Fungsi untuk menghentikan atau memulai animasi
+function toggleAnimation() {
+    if (animationRunning) {
+        // Jika animasi sedang berjalan, hentikan
+        clearTimeout(animationInterval);
+        animationRunning = false;
+        document.getElementById('animation-text').innerText = 'Mulai Animasi';
+    } else {
+        // Jika animasi berhenti, mulai lagi
+        animationRunning = true;
+        document.getElementById('animation-text').innerText = 'Hentikan Animasi';
+        // Langsung panggil animateTrain untuk memulai kembali animasi
+        animateTrain();
+    }
+}
+
+// Fungsi animasi kereta yang diperbaiki
+function animateTrain() {
+    // Keluar dari fungsi jika animasi tidak berjalan
+    if (!animationRunning) return;
+    
+    // Ambil posisi berikutnya dari array jalur
+    var nextPoint = railwayLatLngs[currentIdx];
+    trainMarker.setLatLng(nextPoint);
+    
+    // Hitung arah hadap kereta (rotasi)
+    if (currentIdx < railwayLatLngs.length - 1) {
+        var nextNextPoint = railwayLatLngs[currentIdx + 1];
+        var angleDeg = Math.atan2(nextNextPoint[1] - nextPoint[1], nextNextPoint[0] - nextPoint[0]) * 180 / Math.PI;
+        
+        // Terapkan rotasi ke ikon kereta
+        var trainIconElement = trainMarker.getElement().querySelector('svg');
+        if (trainIconElement) {
+            trainIconElement.style.transform = 'rotate(' + (angleDeg - 90) + 'deg)';
+        }
+    }
+    
+    // Increment indeks dan reset jika di akhir jalur
+    currentIdx = (currentIdx + 1) % railwayLatLngs.length;
+    
+    // Panggil fungsi ini lagi setelah beberapa waktu jika animasi masih berjalan
+    if (animationRunning) {
+        animationInterval = setTimeout(animateTrain, 300);
+    }
+}
+        
+
+        // Track the currently open popup
+        var currentPopup = null;
+
+        // Function to close any open popup
+        function closeCurrentPopup() {
+            if (currentPopup) {
+                map.closePopup(currentPopup);
+                currentPopup = null;
+            }
+        }
+        
+        // Function to close the menu
+        function closeMenu() {
+            var menuContainer = document.getElementById('menu-container');
+            menuContainer.style.display = 'none';
+        }
+
+        // Modify the showAbout function
+        function showAbout() {
+            // Close any existing popup first
+            closeCurrentPopup();
+            
+            var popup = L.popup({
+                maxWidth: 300
+            })
+            .setLatLng(map.getCenter())
+            .setContent(`
+                <h3>Tentang Peta</h3>
+                <p>Peta ini menampilkan rute kereta api dari Yogyakarta ke Madiun, melintasi beberapa kota di Jawa Timur, Jawa Tengah, dan DI Yogyakarta.</p>
+                <p>Fitur utama peta ini meliputi:</p>
+                <ul>
+                    <li>Visualisasi rute kereta api</li>
+                    <li>Lokasi stasiun dengan informasi detail</li>
+                    <li>Animasi kereta bergerak sepanjang jalur</li>
+                    <li>Pencarian stasiun</li>
+                    <li>Informasi jadwal dan fasilitas</li>
+                </ul>
+                <p>Peta ini dibuat oleh Eszra Rizky</p>
+            `)
+            .openOn(map);
+            
+            // Save reference to current popup
+            currentPopup = popup;
+            
+            toggleMenu();
+        }
+
+        // Modify the showTrainSchedule function
+        function showTrainSchedule() {
+            // Close any existing popup first
+            closeCurrentPopup();
+            
+            var popup = L.popup({
+                maxWidth: 500
+            })
+            .setLatLng(map.getCenter())
+            .setContent(`
+                <h3>Jadwal Kereta Rute Yogyakarta-Madiun</h3>
+                <div style="max-height: 300px; overflow-y: auto; margin-bottom: 10px;">
+            <table style="width: 100%; border-collapse: collapse;">
+            <tr style="background-color: #f2f2f2;">
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Kereta</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Durasi Perjalanan</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Berangkat (WIB)</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Tiba (WIB)</th>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Malabar (68)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">02 Jam 04 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">00:56</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">03:00</td>
+            </tr>
+            <tr style="background-color: #f2f2f2;">
+                <td style="border: 1px solid #ddd; padding: 8px;">Gajayana (36)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">01 Jam 55 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">01:29</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">03:24</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Mutiara Selatan (72)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">01 Jam 48 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">02:40</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">04:28</td>
+            </tr>
+            <tr style="background-color: #f2f2f2;">
+                <td style="border: 1px solid #ddd; padding: 8px;">Madiun Jaya (144)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">02 Jam 03 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">04:02</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">06:05</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Sancaka (84)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">01 Jam 51 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">06:45</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">08:36</td>
+            </tr>
+            <tr style="background-color: #f2f2f2;">
+                <td style="border: 1px solid #ddd; padding: 8px;">Gajayana Tambahan (7002A)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">02 Jam 11 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">07:37</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">09:48</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Malioboro Eksprese (170)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">02 Jam 06 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">10:50</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">12:56</td>
+            </tr>
+            <tr style="background-color: #f2f2f2;">
+                <td style="border: 1px solid #ddd; padding: 8px;">Sancaka (82)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">01 Jam 51 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">11:30</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">13:21</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Ranggajati (154)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">02 Jam 17 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">11:46</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">14:03</td>
+            </tr>
+            <tr style="background-color: #f2f2f2;">
+                <td style="border: 1px solid #ddd; padding: 8px;">Argo Semeru (6)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">01 Jam 46 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">12:50</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">14:36</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Argo Wilis (10)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">01 Jam 45 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">13:27</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">15:12</td>
+            </tr>
+            <tr style="background-color: #f2f2f2;">
+                <td style="border: 1px solid #ddd; padding: 8px;">Malabar (70)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">02 Jam 04 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">16:35</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">17:39</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Sancaka (86)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">01 Jam 52 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">17:00</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">18:52</td>
+            </tr>
+            <tr style="background-color: #f2f2f2;">
+                <td style="border: 1px solid #ddd; padding: 8px;">Wijayakusuma (158)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">02 Jam 17 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">18:31</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">20:48</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Bangunkarta (162)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">02 Jam 25 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">19:58</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">22:23</td>
+            </tr>
+            <tr style="background-color: #f2f2f2;">
+                <td style="border: 1px solid #ddd; padding: 8px;">Kertanegara (168)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">02 Jam 04 Menit</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">21:10</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">23:14</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Sancaka (88F)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">01 Jam 51 Menit (+1 Hari)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">22:25</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">00:16</td>
+            </tr>
+            <tr style="background-color: #f2f2f2;">
+                <td style="border: 1px solid #ddd; padding: 8px;">Bima (8)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">01 Jam 45 Menit (+1 Hari)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">23:30</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">00:15</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">Turangga (12)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">01 Jam 47 Menit (+1 Hari)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">23:47</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">00:34</td>
+            </tr>
+        </table>
+                
+                <p style="margin-top: 15px;"><i>* Jadwal dapat berubah sewaktu-waktu. Silakan cek informasi terbaru di stasiun atau aplikasi resmi KAI (KAI Access).</i></p>
+            `)
+            .openOn(map);
+            
+            // Save reference to current popup
+            currentPopup = popup;
+            
+            toggleMenu();
+        }
+
+        // Modify the showHelp function
+        function showHelp() {
+            // Close any existing popup first
+            closeCurrentPopup();
+            
+            var popup = L.popup({
+                maxWidth: 350
+            })
+            .setLatLng(map.getCenter())
+            .setContent(`
+                <h3>Bantuan Penggunaan Peta</h3>
+                <ul>
+                    <li><b>Navigasi Peta:</b> Gunakan mouse untuk geser peta, scroll untuk zoom in/out</li>
+                    <li><b>Stasiun:</b> Klik ikon stasiun untuk melihat informasi detailnya</li>
+                    <li><b>Pencarian:</b> Buka menu di kiri atas dan gunakan kotak pencarian untuk menemukan stasiun</li>
+                    <li><b>Basemap:</b> Ubah tampilan peta dasar dengan kontrol di kanan bawah</li>
+                    <li><b>Animasi Kereta:</b> Kereta bergerak otomatis, klik tombol di menu untuk menghentikan/memulai</li>
+                    <li><b>Menu:</b> Akses fitur tambahan melalui tombol menu di kiri atas</li>
+                </ul>
+                <p>Untuk informasi lebih lanjut tentang kereta api, silakan hubungi KAI di <a href="mailto:cs@kai.id">cs@kai.id</a></p>
+            `)
+            .openOn(map);
+            
+            // Save reference to current popup
+            currentPopup = popup;
+            
+            toggleMenu();
+        }
+
+        // Modify the showBasemapInfo function
+        function showBasemapInfo() {
+            // Close any existing popup first
+            closeCurrentPopup();
+            
+            var popup = L.popup({
+                className: 'basemap-info',
+                closeButton: true,
+                autoClose: false
+            })
+            .setLatLng(map.getCenter())
+            .setContent(`
+                <h3>Informasi Basemap</h3>
+                <p>Anda dapat memilih beberapa jenis peta dasar:</p>
+                <ul>
+                    <li><b>OpenStreetMap</b>: Peta standar dengan informasi jalan</li>
+                    <li><b>Satellite</b>: Citra satelit untuk melihat kondisi area sebenarnya</li>
+                    <li><b>Terrain</b>: Peta topografi yang menampilkan relief permukaan</li>
+                </ul>
+                <p>Klik ikon lapisan <i class="fas fa-layers"></i> di pojok kanan bawah untuk mengganti basemap.</p>
+            `)
+            .openOn(map);
+            
+            // Save reference to current popup
+            currentPopup = popup;
+        }
+
+        // Modify the showStationDetails function
+        function showStationDetails(stationCode) {
+            // Close any existing popup first
+            closeCurrentPopup();
+            // Close menu
+            closeMenu();
+            
+            // Temukan stasiun berdasarkan kode
+            var station = stations.find(s => s.code === stationCode);
+            if (!station) return;
+            
+            var popup = L.popup({
+                maxWidth: 350
+            })
+            .setLatLng([station.lat, station.lon])
+            .setContent(`
+                <h3>Detail Stasiun ${station.name}</h3>
+                <img src="${station.img}" alt="${station.name}" style="width: 100%; border-radius: 5px; margin-bottom: 10px;">
+                <div style="margin-bottom: 5px;"><b>Kode:</b> ${station.code}</div>
+                <div style="margin-bottom: 5px;"><b>Kelas:</b> ${station.kelas}</div>
+                <div style="margin-bottom: 5px;"><b>Provinsi:</b> ${station.province}</div>
+                <div style="margin-bottom: 5px;"><b>Kabupaten/Kota:</b> ${station.district}</div>
+                <div style="margin-bottom: 5px;"><b>Operator:</b> ${station.operator}</div>
+                <div style="margin-bottom: 5px;"><b>Koordinat:</b> ${station.lat}, ${station.lon}</div>
+                <div style="margin-top: 15px;">
+                    <p><b>Tentang Stasiun:</b></p>
+                    <p>Stasiun ${station.name} merupakan salah satu stasiun di jalur Yogyakarta-Madiun. Stasiun ini melayani penumpang dengan berbagai layanan kereta api.</p>
+                </div>
+            `)
+            .openOn(map);
+            
+            // Save reference to current popup
+            currentPopup = popup;
+        }
+
+        // Modify the showSchedule function
+        function showSchedule(stationCode) {
+            // Close any existing popup first
+            closeCurrentPopup();
+            // Close menu
+            closeMenu();
+            
+            // Temukan stasiun berdasarkan kode
+            var station = stations.find(s => s.code === stationCode);
+            if (!station) return;
+            
+            var popup = L.popup({
+                maxWidth: 400
+            })
+            .setLatLng([station.lat, station.lon])
+            .setContent(`
+                <h3>Jadwal Kereta di Stasiun ${station.name}</h3>
+                
+                <p style="margin-top: 15px;"><i>* Silakan cek informasi terbaru di stasiun atau aplikasi resmi KAI.</i></p>
+            `)
+            .openOn(map);
+            
+            // Save reference to current popup
+            currentPopup = popup;
+        }
+
+        // Modify the showNearbyFacilities function
+        function showNearbyFacilities(stationCode) {
+            // Close any existing popup first
+            closeCurrentPopup();
+            // Close menu
+            closeMenu();
+            
+            // Temukan stasiun berdasarkan kode
+            var station = stations.find(s => s.code === stationCode);
+            if (!station) return;
+            
+            var popup = L.popup({
+                maxWidth: 400
+            })
+            .setLatLng([station.lat, station.lon])
+            .setContent(`
+                <h3>Fasilitas di Sekitar Stasiun ${station.name}</h3>
+                <div style="margin-bottom: 10px;">
+                    <h4><i class="fas fa-hotel"></i> Akomodasi</h4>
+                    <ul>
+                        <li>Hotel (${Math.floor(Math.random() * 5) + 1} dalam radius 500m)</li>
+                        <li>Penginapan (${Math.floor(Math.random() * 3) + 1} dalam radius 300m)</li>
+                    </ul>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <h4><i class="fas fa-utensils"></i> Kuliner</h4>
+                    <ul>
+                        <li>Restoran (${Math.floor(Math.random() * 6) + 2} dalam radius 300m)</li>
+                        <li>Kafe (${Math.floor(Math.random() * 4) + 1} dalam radius 200m)</li>
+                        <li>Warung Makan (${Math.floor(Math.random() * 8) + 3} dalam radius 100m)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4><i class="fas fa-bus"></i> Transportasi</h4>
+                    <ul>
+                        <li>Halte Bus (${Math.floor(Math.random() * 2) + 1} dalam radius 100m)</li>
+                        <li>Terminal Angkot (${Math.random() > 0.5 ? "Ada" : "Tidak Ada"} dalam radius 200m)</li>
+                        <li>Pangkalan Taksi/Ojek (Ada)</li>
+                    </ul>
+                </div>
+            `)
+            .openOn(map);
+            
+            // Save reference to current popup
+            currentPopup = popup;
+        }
+
+        // Add a search control with magnifying glass icon at the top of the map
+        var searchControl = L.control({
+            position: 'topleft'
+        });
+
+        searchControl.onAdd = function(map) {
+            var div = L.DomUtil.create('div', 'leaflet-control leaflet-control-search');
+            div.innerHTML = `
+                <div class="search-container" style="display: flex; background: white; border-radius: 4px; padding: 5px; margin-bottom: 5px; box-shadow: 0 1px 5px rgba(0,0,0,0.4);">
+                    <input type="text" id="map-search-input" placeholder="Cari stasiun..." style="border: none; flex-grow: 1; padding: 2px 5px; outline: none;" />
+                    <button id="search-button" style="background: none; border: none; cursor: pointer;"><i class="fas fa-search"></i></button>
+                </div>
+            `;
+            
+            // Prevent map clicks from propagating through the control
+            L.DomEvent.disableClickPropagation(div);
+            
+            // Add event listener after the control is added to the map
+            setTimeout(function() {
+                document.getElementById('search-button').addEventListener('click', function() {
+                    performMapSearch();
+                });
+                
+                document.getElementById('map-search-input').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        performMapSearch();
+                    }
+                });
+            }, 100);
+            
+            return div;
+        };
+
+        // Add the search control to the map (before the menu button)
+        searchControl.addTo(map);
+
+        // Function to perform search from the map search box
+        function performMapSearch() {
+            var searchText = document.getElementById('map-search-input').value.toLowerCase();
+            
+            // Close menu and any open popups
+            closeMenu();
+            closeCurrentPopup();
+            
+            // Find matching station
+            var found = false;
+            for (var i = 0; i < searchableLayers.length; i++) {
+                var item = searchableLayers[i];
+                if (item.title.toLowerCase().includes(searchText)) {
+                    map.setView(item.loc, 14);
+                    item.layer.openPopup();
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (!found && searchText.trim() !== '') {
+                alert('Stasiun tidak ditemukan');
+            }
+        }
+
+        // Function for searching from the menu
+        function searchStation() {
+            var searchText = document.getElementById('menu-search-input').value.toLowerCase();
+            
+            // Close menu and any open popups
+            closeMenu();
+            closeCurrentPopup();
+            
+            // Find matching station
+            var found = false;
+            for (var i = 0; i < searchableLayers.length; i++) {
+                var item = searchableLayers[i];
+                if (item.title.toLowerCase().includes(searchText)) {
+                    map.setView(item.loc, 14);
+                    item.layer.openPopup();
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (!found && searchText.trim() !== '') {
+                alert('Stasiun tidak ditemukan');
+            }
+        }
+
+        // Menu button using Easy Button plugin (hamburger icon) - positioned at top-left corner
+        L.easyButton('<i class="fas fa-bars"></i>', function() {
+            toggleMenu();
+        }, 'Menu Utama', {
+            position: 'topleft'
+        }).addTo(map);
+
+        // Function to toggle menu visibility
+        function toggleMenu() {
+            var menuContainer = document.getElementById('menu-container');
+            if (menuContainer.style.display === 'block') {
+                menuContainer.style.display = 'none';
+            } else {
+                menuContainer.style.display = 'block';
+                closeCurrentPopup(); // Close any open popup when menu opens
+            }
+        }
+
+         // Add scale control
+         L.control.scale({
+            imperial: false,
+            position: 'bottomright'
+        }).addTo(map);
+
+        // Add layer control for switching basemaps
+        var baseMaps = {
+            "OpenStreetMap": openStreetMap,
+            "Satellite": satellite,
+            "Terrain": terrain
+        };
+
+        var overlayMaps = {
+            "Stasiun": markers,
+            "Jalur Kereta": railwayLine
+        };
+
+        L.control.layers(baseMaps, overlayMaps, {
+            position: 'bottomright'
+        }).addTo(map);
+
+        // Add info button for basemap
+        L.easyButton('<i class="fas fa-info-circle"></i>', function() {
+            showBasemapInfo();
+        }, 'Informasi Basemap', {
+            position: 'bottomright'
+        }).addTo(map);
+
+       
+
+        // Add home button to reset view
+        L.easyButton('<i class="fas fa-home"></i>', function() {
+            // Reset view to initial position and zoom
+            map.setView([-7.58, 110.8], 8);
+            closeCurrentPopup();
+        }, 'Kembali ke Tampilan Awal', {
+            position: 'topleft'
+        }).addTo(map);
+
+        // Add geolocation button
+        L.easyButton('<i class="fas fa-location-arrow"></i>', function() {
+            map.locate({setView: true, maxZoom: 16});
+            
+            // Handle location found event
+            map.on('locationfound', function(e) {
+                var radius = e.accuracy / 2;
+                
+                // Clear previous markers if any
+                if (this.locationMarker) {
+                    map.removeLayer(this.locationMarker);
+                    map.removeLayer(this.locationCircle);
+                }
+                
+                // Add marker at location
+                this.locationMarker = L.marker(e.latlng).addTo(map)
+                    .bindPopup("Anda berada dalam " + radius + " meter dari titik ini").openPopup();
+                
+                // Add circle showing accuracy
+                this.locationCircle = L.circle(e.latlng, radius).addTo(map);
+            });
+            
+            // Handle location error
+            map.on('locationerror', function(e) {
+                alert("Tidak dapat menemukan lokasi Anda: " + e.message);
+            });
+            
+        }, 'Temukan Lokasi Saya', {
+            position: 'topleft'
+        }).addTo(map);
+
+        // Initialize dynamic control buttons
+        var controlButtonsContainer = document.getElementById('control-buttons');
+        
+        // Add zoom to route button
+        var zoomToRouteButton = document.createElement('button');
+        zoomToRouteButton.className = 'control-button';
+        zoomToRouteButton.innerHTML = '<i class="fas fa-route"></i>';
+        zoomToRouteButton.title = 'Lihat Seluruh Rute';
+        zoomToRouteButton.onclick = function() {
+            map.fitBounds(railwayLine.getBounds());
+            closeCurrentPopup();
+        };
+        controlButtonsContainer.appendChild(zoomToRouteButton);
+        
+        // Add train animation toggle button
+        var trainAnimationButton = document.createElement('button');
+        trainAnimationButton.className = 'control-button';
+        trainAnimationButton.innerHTML = '<i class="fas fa-train"></i>';
+        trainAnimationButton.title = 'Toggle Animasi Kereta';
+        trainAnimationButton.onclick = function() {
+            toggleAnimation();
+            this.innerHTML = animationRunning ? 
+                '<i class="fas fa-pause"></i>' : 
+                '<i class="fas fa-play"></i>';
+        };
+        controlButtonsContainer.appendChild(trainAnimationButton);
+        
+        
+        // Add share button
+        var shareButton = document.createElement('button');
+        shareButton.className = 'control-button';
+        shareButton.innerHTML = '<i class="fas fa-share-alt"></i>';
+        shareButton.title = 'Bagikan Peta';
+        shareButton.onclick = function() {
+            // Get current map center and zoom
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            
+            // Create shareable link with coordinates and zoom level
+            var shareableLink = window.location.origin + window.location.pathname + 
+                               '?lat=' + center.lat.toFixed(6) + '&lng=' + center.lng.toFixed(6) + '&zoom=' + zoom;
+            
+            // Close any existing popup first
+            closeCurrentPopup();
+            
+            var popup = L.popup({
+                maxWidth: 300
+            })
+            .setLatLng(map.getCenter())
+            .setContent(`
+                <h3>Bagikan Peta</h3>
+                <p>Gunakan tautan di bawah ini untuk membagikan peta dengan tampilan saat ini:</p>
+                <div style="margin: 10px 0;">
+                    <input type="text" value="${shareableLink}" style="width: 100%; padding: 5px;" id="share-link" readonly />
+                </div>
+                <button onclick="copyShareLink()" style="width: 100%; padding: 5px; cursor: pointer;">Salin Tautan</button>
+                <div style="margin-top: 10px;">
+                    <p>Atau bagikan melalui:</p>
+                    <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                        <a href="#" onclick="alert('Bagikan ke WhatsApp'); return false;"><i class="fab fa-whatsapp fa-2x" style="color: #25D366;"></i></a>
+                        <a href="#" onclick="alert('Bagikan ke Facebook'); return false;"><i class="fab fa-facebook fa-2x" style="color: #1877F2;"></i></a>
+                        <a href="#" onclick="alert('Bagikan ke Twitter'); return false;"><i class="fab fa-twitter fa-2x" style="color: #1DA1F2;"></i></a>
+                        <a href="#" onclick="alert('Bagikan lewat Email'); return false;"><i class="fas fa-envelope fa-2x" style="color: #D44638;"></i></a>
+                    </div>
+                </div>
+            `)
+            .openOn(map);
+            
+            // Save reference to current popup
+            currentPopup = popup;
+        };
+        controlButtonsContainer.appendChild(shareButton);
+        
+        // Function to copy share link to clipboard
+        window.copyShareLink = function() {
+            var copyText = document.getElementById("share-link");
+            copyText.select();
+            document.execCommand("copy");
+            alert("Tautan disalin!");
+        };
+        
+        // Check if there are URL parameters and set the view accordingly
+        function setInitialView() {
+            var params = new URLSearchParams(window.location.search);
+            if (params.has('lat') && params.has('lng') && params.has('zoom')) {
+                var lat = parseFloat(params.get('lat'));
+                var lng = parseFloat(params.get('lng'));
+                var zoom = parseInt(params.get('zoom'));
+                
+                if (!isNaN(lat) && !isNaN(lng) && !isNaN(zoom)) {
+                    map.setView([lat, lng], zoom);
+                } else {
+                    // Default view if params are invalid
+                    map.fitBounds(railwayLine.getBounds());
+                }
+            } else {
+                // Default view if no params
+                map.fitBounds(railwayLine.getBounds());
+            }
+        }
+        
+        // Call the function to set initial view
+        setInitialView();
+        
+        // Start train animation
+        animateTrain();
+        
+        // Event listener for map click to close menu and popups
+        map.on('click', function() {
+            closeMenu();
+            // Don't close popups on map click - let the user close them manually
+            // closeCurrentPopup();
+        });
+        
+        // Event listener for resize to handle responsive sizing
+        window.addEventListener('resize', function() {
+            // Adjust map container height
+            var mapContainer = document.getElementById('map');
+            var titleContainer = document.querySelector('.title-container');
+            var windowHeight = window.innerHeight;
+            var titleHeight = titleContainer ? titleContainer.offsetHeight : 0;
+            
+            mapContainer.style.height = (windowHeight - titleHeight) + 'px';
+            
+            // Trigger a resize event on the map
+            map.invalidateSize();
+        });
+        
+        // Trigger resize on load to ensure proper sizing
+        map.fitBounds(railwayLine.getBounds(), { padding: [50, 50] });
+    </script>
+</body>
+</html>

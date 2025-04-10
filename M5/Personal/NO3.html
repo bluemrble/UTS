@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Validasi Umur</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f2f5;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            max-width: 500px;
+            border-radius: 5px;
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: inline-block;
+            width: 80px;
+            margin-right: 10px;
+        }
+        input[type="text"], 
+        input[type="number"] {
+            padding: 5px;
+            width: 200px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Validasi Umur</h1>
+        
+        <div class="form-group">
+            <label for="nama">Nama:</label>
+            <input type="text" id="nama" placeholder="Masukkan nama">
+        </div>
+        
+        <div class="form-group">
+            <label for="umur">Umur:</label>
+            <input type="number" id="umur" placeholder="Masukkan umur">
+        </div>
+        
+        <button id="validateButton">Validasi</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function validasi() {
+            // Ambil nilai dari input
+            const nama = document.getElementById('nama').value.trim();
+            const umur = parseInt(document.getElementById('umur').value);
+            const resultDiv = document.getElementById('result');
+            
+            // Reset hasil sebelumnya
+            resultDiv.innerHTML = '';
+            
+            // Validasi nama
+            if (nama === '') {
+                resultDiv.innerHTML = '<p class="error">**isikan nama!!**</p>';
+                return;
+            }
+            
+            // Validasi umur
+            let kategori = '';
+            
+            if (isNaN(umur) || umur <= 0) {
+                kategori = 'Anda Game Over';
+            } else if (umur < 5) {
+                kategori = 'Anda masih bayi';
+            } else if (umur >= 6 && umur <= 15) {
+                kategori = 'Anda masih anak-anak';
+            } else if (umur >= 16 && umur <= 30) {
+                kategori = 'Anda masih remaja';
+            } else if (umur >= 31 && umur <= 60) {
+                kategori = 'Anda sudah dewasa';
+            } else if (umur >= 61) {
+                kategori = 'Anda sudah dewasa';
+            }
+            
+            // Tampilkan hasil
+            resultDiv.innerHTML = `<p>Halo ${nama}, ${kategori}</p>`;
+        }
+        
+        // Add event listeners
+        document.getElementById('validateButton').addEventListener('click', validasi);
+        
+        // Add Enter key support
+        document.getElementById('nama').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                validasi();
+            }
+        });
+        
+        document.getElementById('umur').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                validasi();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>City Gallery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+       
+        .header {
+            background-color: blue;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin: 0;
+        }
+       
+        .nav {
+            width: 13%;
+            background-color: #f1f1f1;
+            position: absolute;
+            top: 100px; 
+            bottom: -1200px; 
+            left: 0;
+            padding: 10px;
+        }
+       
+        .nav a {
+            display: block;
+            color: black;
+            text-decoration: none;
+            padding: 5px;
+            cursor: pointer;
+        }
+       
+        .content {
+            margin-left: 15%;
+            padding: 10px;
+            margin-bottom: 40px;
+        }
+       
+        .city-image {
+            max-width: 300px;
+            float: right;
+            margin-left: 15px;
+            margin-bottom: 15px;
+        }
+       
+        .footer {
+            background-color: blue;
+            color: white;
+            text-align: center;
+            padding: 5px;
+            clear: both;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .city-content {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+        
+        .section {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .section h3 {
+            color: #333;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        
+        .highlight {
+            background-color: #f8f8f8;
+            border-left: 3px solid blue;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>City Gallery (Galeri Kota)</h1>
+    </div>
+    <div class="nav">
+        <a onclick="showCity('madiun')">Madiun</a>
+        <a onclick="showCity('ponorogo')">Ponorogo</a>
+        <a onclick="showCity('ngawi')">Ngawi</a>
+    </div>
+    <div class="content">
+        <div id="madiun" class="city-content active">
+            <h2>Kota Madiun</h2>
+            <img src="https://static.promediateknologi.id/crop/0x0:0x0/0x0/webp/photo/p2/220/2024/05/05/WhatsApp-Image-2024-05-05-at-091854-1-3381687716.jpeg" alt="Kota Madiun" class="city-image">
+            
+            <p>Madiun adalah sebuah kota yang terletak di bagian barat Provinsi Jawa Timur, Indonesia. Kota yang dikenal dengan julukan "Kota GADIS" (Perdagangan, Pendidikan, dan Industri) ini memiliki luas wilayah sekitar 33,23 km² dan merupakan salah satu kota strategis di Jawa Timur. Kota Madiun berbatasan langsung dengan Kabupaten Madiun di sisi utara, timur, dan selatan, serta dengan Kabupaten Magetan di sisi barat.</p>
+            
+            <div class="section">
+                <h3>Sejarah Panjang Kota Madiun</h3>
+                <p>Sejarah Kota Madiun dapat dirunut hingga masa Kerajaan Majapahit. Nama "Madiun" diperkirakan berasal dari kata "Medi" yang berarti tanah dataran rendah dan "Ayun" yang berarti bergerak atau tidak stabil, merujuk pada kondisi geografis wilayah ini yang berupa dataran rendah dengan tanah yang subur namun sering mengalami pergerakan tanah.</p>
+                
+                <p>Pada masa kolonial Belanda, Madiun menjadi salah satu kota penting dengan dibangunnya jalur kereta api yang menghubungkan wilayah ini dengan kota-kota lain di Pulau Jawa. Pada tahun 1848, Madiun ditetapkan sebagai ibukota karesidenan oleh pemerintah kolonial Belanda. Peristiwa bersejarah lainnya adalah terjadinya Peristiwa Madiun pada tahun 1948, yang merupakan pemberontakan PKI terhadap pemerintah Republik Indonesia yang saat itu dipimpin oleh Presiden Soekarno.</p>
+            </div>
+            
+            <div class="section">
+                <h3>Perkembangan Industri dan Ekonomi</h3>
+                <p>Madiun memiliki peran penting dalam industri perkeretaapian Indonesia. PT INKA (Industri Kereta Api), yang merupakan produsen kereta api nasional, berlokasi di kota ini. Perusahaan ini memproduksi berbagai jenis gerbong kereta api, baik untuk kebutuhan domestik maupun ekspor.</p>
+                
+                <div class="highlight">
+                    <p>Selain industri kereta api, ekonomi Kota Madiun juga ditopang oleh:</p>
+                    <ol>
+                        <li><strong>Industri Manufaktur</strong>: Berbagai industri pengolahan seperti industri makanan, minuman, tekstil, dan furnitur berkembang di kota ini.</li>
+                        <li><strong>Perdagangan</strong>: Sebagai kota perdagangan, Madiun memiliki berbagai pusat perbelanjaan modern dan pasar tradisional yang menjadi pusat kegiatan ekonomi masyarakat.</li>
+                        <li><strong>Pertanian</strong>: Meskipun merupakan daerah perkotaan, sektor pertanian masih memberikan kontribusi bagi perekonomian Kota Madiun, terutama di daerah pinggiran kota.</li>
+                        <li><strong>Jasa dan Pariwisata</strong>: Sektor jasa, termasuk perhotelan, kuliner, dan pariwisata, juga menjadi penopang ekonomi kota ini.</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>Kekayaan Budaya dan Kuliner</h3>
+                <p>Kota Madiun memiliki kekayaan budaya yang beragam, mencerminkan perpaduan budaya Jawa dan pengaruh budaya lainnya. Beberapa tradisi dan kesenian khas Madiun antara lain:</p>
+                <ol>
+                    <li><strong>Reog Ponorogo</strong>: Meskipun berasal dari Ponorogo, kesenian ini juga populer di Madiun.</li>
+                    <li><strong>Dongkrek</strong>: Kesenian tradisional berupa tarian topeng yang menggambarkan perjuangan melawan penyakit dan kejahatan.</li>
+                    <li><strong>Tari Pentul Melikan</strong>: Tarian tradisional yang berasal dari Desa Melikan, Kabupaten Madiun.</li>
+                </ol>
+                
+                <p>Dalam hal kuliner, Madiun memiliki beberapa makanan khas yang sangat terkenal:</p>
+                <ol>
+                    <li><strong>Pecel Madiun</strong>: Makanan ini terdiri dari sayuran rebus yang disiram dengan sambal kacang yang khas. Pecel Madiun dikenal memiliki rasa yang lebih gurih dan pedas dibandingkan pecel dari daerah lain.</li>
+                    <li><strong>Sambel Pecel</strong>: Bumbu kacang tanah yang digunakan untuk pecel Madiun juga diproduksi dan dipasarkan secara komersial.</li>
+                    <li><strong>Brem Madiun</strong>: Minuman fermentasi yang terbuat dari tape ketan.</li>
+                    <li><strong>Lempeng Ketan</strong>: Makanan ringan yang terbuat dari ketan dan digoreng.</li>
+                    <li><strong>Bluder Madiun</strong>: Kue tradisional yang mirip dengan kue bolu, namun memiliki tekstur dan rasa yang khas.</li>
+                </ol>
+            </div>
+            
+            <div class="section">
+                <h3>Pendidikan dan Fasilitas Publik</h3>
+                <p>Sebagai kota pendidikan, Madiun memiliki berbagai institusi pendidikan berkualitas, mulai dari tingkat dasar hingga perguruan tinggi. Beberapa perguruan tinggi di kota ini antara lain:</p>
+                <ol>
+                    <li>Universitas Merdeka Madiun</li>
+                    <li>Universitas PGRI Madiun</li>
+                    <li>Politeknik Negeri Madiun</li>
+                    <li>IAIN Ponorogo Kampus Madiun</li>
+                </ol>
+                
+                <p>Kota Madiun juga dilengkapi dengan berbagai fasilitas publik seperti:</p>
+                <ol>
+                    <li><strong>Rumah Sakit</strong>: RSUD Dr. Soedono dan beberapa rumah sakit swasta.</li>
+                    <li><strong>Taman Kota</strong>: Alun-alun Kota Madiun, Taman Bantaran Kali Madiun.</li>
+                    <li><strong>Pusat Olahraga</strong>: Stadion Wilis, berbagai lapangan olahraga.</li>
+                    <li><strong>Pusat Perbelanjaan</strong>: Sri Ratu, Matahari Department Store, dan berbagai pusat perbelanjaan modern lainnya.</li>
+                </ol>
+            </div>
+            
+            <div class="section">
+                <h3>Pariwisata dan Destinasi Menarik</h3>
+                <div class="highlight">
+                    <p>Kota Madiun memiliki beberapa destinasi wisata menarik yang dapat dikunjungi:</p>
+                    <ol>
+                        <li><strong>Museum Maospati</strong>: Museum yang menyimpan berbagai benda bersejarah terkait dengan Kota Madiun.</li>
+                        <li><strong>Monumen Kresek</strong>: Monumen yang dibangun untuk mengenang korban kekejaman PKI pada tahun 1948.</li>
+                        <li><strong>Wisata Religius</strong>: Masjid Agung Kota Madiun, Gereja Katolik Santo Cornelius.</li>
+                        <li><strong>Wisata Kuliner</strong>: Pusat-pusat kuliner yang menyajikan aneka makanan khas Madiun.</li>
+                        <li><strong>Taman Rekreasi Dumilah</strong>: Area rekreasi keluarga dengan berbagai wahana permainan.</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>Perkembangan Infrastruktur</h3>
+                <p>Infrastruktur di Kota Madiun terus mengalami perkembangan. Kota ini memiliki akses transportasi yang baik, baik melalui jalur darat maupun kereta api. Stasiun Madiun merupakan stasiun kereta api kelas besar yang melayani berbagai rute kereta api, termasuk kereta api kelas eksekutif yang menghubungkan Madiun dengan kota-kota besar lainnya di Pulau Jawa.</p>
+                
+                <p>Pembangunan jalan tol Trans Jawa yang melewati wilayah sekitar Madiun juga semakin meningkatkan konektivitas kota ini dengan kota-kota lain di Pulau Jawa, sehingga membuka peluang bagi pertumbuhan ekonomi dan pariwisata di masa depan.</p>
+                
+                <p>Dengan kombinasi kekayaan sejarah, budaya, industri, dan kuliner yang khas, Kota Madiun terus berkembang sebagai salah satu kota penting di Jawa Timur yang menawarkan berbagai potensi untuk dikembangkan lebih lanjut.</p>
+            </div>
+        </div>
+
+        <div id="ponorogo" class="city-content">
+            <h2>Ponorogo</h2>
+            <img src="https://media.istockphoto.com/id/1458101077/id/foto/pemandangan-monumen-penyambutan-di-setiap-pintu-masuk-perbatasan-kota-ponorogo-berupa-patung.jpg?s=170667a&w=0&k=20&c=i7zricdGpGrpL7nw_fsh6EMMvp-dqoDKAh0amQkJi2o=" alt="Kota Ponorogo" class="city-image">
+            <p>Ponorogo adalah sebuah kabupaten di Provinsi Jawa Timur, Indonesia. Kota ini terkenal dengan sebutan Kota Reog karena merupakan tempat lahirnya kesenian Reog Ponorogo yang mendunia. Selain itu, Ponorogo juga dikenal dengan pendidikan pesantrennya yang tersebar di berbagai wilayah.</p>
+            <p>Ponorogo memiliki berbagai destinasi wisata menarik, mulai dari wisata budaya, wisata alam, hingga wisata kuliner. Salah satu makanan khas Ponorogo yang terkenal adalah Sate Ponorogo yang memiliki cita rasa yang khas dan berbeda dengan sate pada umumnya.</p>
+        </div>
+
+        <div id="ngawi" class="city-content">
+            <h2>Ngawi</h2>
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh0E6SMJRMkAt9J_M0ry7YLacBK1hvVtzymu9qYbfnQ-sZ4LPGpfNalI55_QkLDYhJfIqu3v5ZqkeDbG4WslgebY0pnSA2iTiDP_emzbiAkr3LoddRCYZMkWkWCG0ewNIPtu4tfObniWNcMejSWrrHPZpBYs7moQKZsRCj02A0y4oINDh6LqXQAn7hTho3A/s1017/imresizer-1725273973621.jpg" alt="Kota Ngawi" class="city-image">
+            <p>Ngawi adalah sebuah kabupaten di Provinsi Jawa Timur yang berbatasan langsung dengan Provinsi Jawa Tengah. Kota ini terkenal dengan sebutan Kota Bambu karena banyaknya tanaman bambu yang tumbuh di wilayah ini. Ngawi juga dikenal sebagai penghasil beras yang berkualitas.</p>
+            <p>Kabupaten Ngawi memiliki beberapa tempat wisata menarik seperti Benteng Pendem, Air Terjun Srambang, dan Museum Trinil yang menyimpan fosil manusia purba. Selain itu, Ngawi juga memiliki makanan khas berupa Tahu Tepo dan Lethok yang sangat populer di kalangan wisatawan.</p>
+        </div>
+    </div>
+    <div class="footer">
+        Copyright © Eszra Rizky
+    </div>
+    <script>
+        function showCity(cityId) {
+            // Hide all city content
+            document.querySelectorAll('.city-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show selected city content
+            document.getElementById(cityId).classList.add('active');
+        }
+    </script>
+</body>
+</html>

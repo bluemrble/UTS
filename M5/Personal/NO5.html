@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fibonacci Numbers Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .input-group {
+            margin: 20px 0;
+            text-align: center;
+        }
+        input[type="number"] {
+            padding: 8px;
+            width: 120px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        button:hover {
+            background-color: #0b7dda;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border-top: 1px solid #eee;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generator Bilangan Fibonacci</h1>
+        
+        <div class="input-group">
+            <label for="number">Masukkan angka: </label>
+            <input type="number" id="number" min="1" value="10">
+            <button id="calculateButton">Hitung</button>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function generateFibonacci() {
+            const number = parseInt(document.getElementById('number').value);
+            const resultDiv = document.getElementById('result');
+            
+            if (isNaN(number) || number < 1) {
+                resultDiv.innerHTML = '<p>Silakan masukkan angka yang valid (lebih dari atau sama dengan 1).</p>';
+                return;
+            }
+            
+            const fibonacci = [0, 1];
+            
+            // Generate Fibonacci numbers up to the specified limit
+            while (fibonacci[fibonacci.length - 1] + fibonacci[fibonacci.length - 2] <= number) {
+                fibonacci.push(fibonacci[fibonacci.length - 1] + fibonacci[fibonacci.length - 2]);
+            }
+            
+            if (number < 1) {
+                fibonacci.shift(); // Remove 0 if number is less than 1
+            }
+            
+            resultDiv.innerHTML = `<p>Bilangan Fibonacci sampai ${number} adalah:</p>
+                                   <p>${fibonacci.join(', ')}</p>`;
+        }
+        
+        // Add event listeners
+        document.getElementById('calculateButton').addEventListener('click', generateFibonacci);
+        
+        // Add Enter key support
+        document.getElementById('number').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                generateFibonacci();
+            }
+        });
+        
+        // Generate Fibonacci sequence on page load with default value
+        window.onload = generateFibonacci;
+    </script>
+</body>
+</html>
